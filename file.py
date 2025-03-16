@@ -1,11 +1,7 @@
 import streamlit as st
 import google.generativeai as genai
-import cv2
 import speech_recognition as sr
 import pyttsx3
-from fer import FER
-import tempfile
-import os
 
 # Configure Google Generative AI
 API_KEY = "AIzaSyA-9-lTQTWdNM43YdOXMQwGKDy0SrMwo6c"  # Replace with your actual API key
@@ -29,30 +25,6 @@ def speech_to_text():
             st.write("Sorry, I could not understand.")
             return None
 
-# Function to analyze facial emotions using FER
-def analyze_emotion(frame):
-    try:
-        # Save the frame as a temporary image
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as temp_image:
-            temp_image_path = temp_image.name
-            cv2.imwrite(temp_image_path, frame)
-
-        # Analyze emotion using FER
-        emotion_detector = FER()
-        emotion = emotion_detector.detect_emotion(frame)
-        if emotion:
-            dominant_emotion = max(emotion[0]['emotions'], key=emotion[0]['emotions'].get)
-        else:
-            dominant_emotion = "No emotion detected"
-
-        # Clean up the temporary image
-        os.remove(temp_image_path)
-
-        return dominant_emotion
-    except Exception as e:
-        st.write(f"Error analyzing emotion: {e}")
-        return None
-
 # Function to correct grammar using Google Generative AI
 def correct_grammar(text):
     try:
@@ -70,34 +42,7 @@ def speak_feedback(feedback):
 
 # Streamlit App Layout
 st.title("English Teaching Assistant")
-st.write("This app helps you practice English by analyzing your speech, correcting grammar, and understanding your emotions.")
-
-# Webcam Integration
-st.write("### Webcam Feed")
-webcam_enabled = st.checkbox("Enable Webcam")
-if webcam_enabled:
-    cap = cv2.VideoCapture(0)
-    frame_placeholder = st.empty()
-
-    while webcam_enabled:
-        ret, frame = cap.read()
-        if not ret:
-            st.write("Failed to capture frame.")
-            break
-
-        # Display the webcam feed
-        frame_placeholder.image(frame, channels="BGR")
-
-        # Analyze emotion
-        emotion = analyze_emotion(frame)
-        if emotion:
-            st.write(f"Detected Emotion: {emotion}")
-
-        # Break the loop if the user disables the webcam
-        if not st.checkbox("Keep Webcam On", value=True):
-            webcam_enabled = False
-
-    cap.release()
+st.write("This app helps you practice English by analyzing your speech and correcting grammar.")
 
 # Speech Recognition and Grammar Correction
 st.write("### Speech Practice")
