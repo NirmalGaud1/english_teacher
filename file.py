@@ -3,14 +3,14 @@ import google.generativeai as genai
 import cv2
 import speech_recognition as sr
 import pyttsx3
-from deepface import DeepFace
+from fer import FER
 import tempfile
 import os
 
 # Configure Google Generative AI
 API_KEY = "AIzaSyA-9-lTQTWdNM43YdOXMQwGKDy0SrMwo6c"  # Replace with your actual API key
 genai.configure(api_key=API_KEY)
-model = genai.GenerativeModel('gemini-1.5-flash')
+model = genai.GenerativeModel('gemini-pro')
 
 # Initialize text-to-speech engine
 engine = pyttsx3.init()
@@ -29,7 +29,7 @@ def speech_to_text():
             st.write("Sorry, I could not understand.")
             return None
 
-# Function to analyze facial emotions
+# Function to analyze facial emotions using FER
 def analyze_emotion(frame):
     try:
         # Save the frame as a temporary image
@@ -37,9 +37,13 @@ def analyze_emotion(frame):
             temp_image_path = temp_image.name
             cv2.imwrite(temp_image_path, frame)
 
-        # Analyze emotion using DeepFace
-        emotion_analysis = DeepFace.analyze(img_path=temp_image_path, actions=['emotion'])
-        dominant_emotion = emotion_analysis[0]['dominant_emotion']
+        # Analyze emotion using FER
+        emotion_detector = FER()
+        emotion = emotion_detector.detect_emotion(frame)
+        if emotion:
+            dominant_emotion = max(emotion[0]['emotions'], key=emotion[0]['emotions'].get)
+        else:
+            dominant_emotion = "No emotion detected"
 
         # Clean up the temporary image
         os.remove(temp_image_path)
