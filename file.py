@@ -1,15 +1,14 @@
 import streamlit as st
 import google.generativeai as genai
 import speech_recognition as sr
-import pyttsx3
+from gtts import gTTS
+import tempfile
+import os
 
 # Configure Google Generative AI
 API_KEY = "AIzaSyA-9-lTQTWdNM43YdOXMQwGKDy0SrMwo6c"  # Replace with your actual API key
 genai.configure(api_key=API_KEY)
 model = genai.GenerativeModel('gemini-1.5-flash')
-
-# Initialize text-to-speech engine
-engine = pyttsx3.init()
 
 # Function to capture speech and convert to text
 def speech_to_text():
@@ -35,10 +34,13 @@ def correct_grammar(text):
         st.write(f"Error correcting grammar: {e}")
         return None
 
-# Function to provide feedback via text-to-speech
+# Function to provide feedback via text-to-speech using gTTS
 def speak_feedback(feedback):
-    engine.say(feedback)
-    engine.runAndWait()
+    tts = gTTS(text=feedback, lang='en')
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as temp_audio:
+        tts.save(temp_audio.name)
+        st.audio(temp_audio.name, format="audio/mp3")
+        os.remove(temp_audio.name)
 
 # Streamlit App Layout
 st.title("English Teaching Assistant")
