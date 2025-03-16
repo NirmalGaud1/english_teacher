@@ -10,7 +10,7 @@ import os
 # Configure Google Generative AI
 API_KEY = "AIzaSyA-9-lTQTWdNM43YdOXMQwGKDy0SrMwo6c"  # Replace with your actual API key
 genai.configure(api_key=API_KEY)
-model = genai.GenerativeModel('gemini-pro')
+model = genai.GenerativeModel('gemini-1.5-flash')
 
 # Initialize text-to-speech engine
 engine = pyttsx3.init()
